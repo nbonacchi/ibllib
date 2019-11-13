@@ -32,7 +32,11 @@ cb = ONE.load(eID, 'clusters.brainAcronyms')
 
 These commands will download three datasets containing the times and cluster assignments of all spikes recorded in that experiment, together with an estimate of the brain location of each cluster. (In practice, the data will be cached on the user's local machine so it can be loaded repeatedly with only one download.)
 
-The `ONE.load()` function is in fact an alias to `ONE.load_dataset()`. Another loading function is `ONE.load_object(eid, 'spikes.*')` which returns a `Bunch` (a dictionary that accepts an additional `.attr` syntax) with all dataset types that match the "globing" pattern specified as second argument to `load_object()`. The example above can be rewritten as follows:
+The `ONE.load()` function is in fact an alias to `ONE.load_dataset()`. 
+
+*[KDH] - if we are going to change the main function name to load_dataset, then we shouldn't even document the alias load on this page. But I don't really understand what is wrong with calling it load. Is it because if someone does `from ONE import *` it overwrites the existing load function?*
+
+Another loading function is `ONE.load_object(eid, 'spikes.*')` which returns a `Bunch` (a dictionary that accepts an additional `.attr` syntax) with all dataset types that match the "globing" pattern specified as second argument to `load_object()`. The example above can be rewritten as follows:
 
 ```python
 spikes = ONE.load_object(eID, 'spikes.*')
@@ -47,10 +51,9 @@ The `ONE.contents(eID)` function returns the list of dataset types of a given ex
 
 *[CR] do we really need | load_datasetS()` and `load_objectS()`?*
 
-
 [KDH] - The fact that we keep debating the best way for them to work is a bad sign! We have various options:
 1. The main ONE codebase only contains load_dataset. Instead, we can write a helper function that loads the IBL data people will often want as a single structure.
-`2. We write a simple function `load_object(eID, objectName)` that loads all attributes from an object and puts them in a bunch - but that's it. For this, I don't think we need wildcards. Just spikes = ONE.load_object(eID, 'probe00/spikes'). To access the data use spikes.times`, `spikes.clusters`, etc.
+2. We write a simple function `load_object(eID, objectName)` that loads all attributes from an object and puts them in a bunch - but that's it. For this, I don't think we need wildcards. Just spikes = ONE.load_object(eID, 'probe00/spikes'). To access the data use spikes.times`, `spikes.clusters`, etc.
 3. We write a function that loads from wildcards. This will need more thought. I guess the way to do it is to pass a list that can include wildcards. For example `data = ONE.load_multi(eID, ['probe??/spikes.*', 'probe??/clusters.*'])` would return a bunch with contents `data.probe00/spikes.times`, `data.probe01/spikes.times`, `data.probe00/spikes.clusters`, `data.probe00/clusters.amps`, etc. There are all sorts of questions about this - for example can we have the '/' character in a bunch name? Maybe we don't even need this.
 
 
@@ -59,7 +62,6 @@ The `ONE.contents(eID)` function returns the list of dataset types of a given ex
 *[KDH] it's on the to-do list, to be implemented as soon as someone wants it...*
 
 
-*[KDH] - if we are going to change the main function name to load_dataset, then we shouldn't even document the alias load on this page. But I don't really understand what is wrong with calling it load. Is it because if someone does `from ONE import *` it overwrites the existing load function?*
 
 Many neural data signals are time series, and synchronizing these signals is often challenging. ONE will provide a function to interpolate any required timeseries to an evenly or unevenly-sampled timescale of the user's choice. For example the command:
 ```python
