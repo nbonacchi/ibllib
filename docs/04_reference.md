@@ -47,11 +47,12 @@ The `ONE.contents(eID)` function returns the list of dataset types of a given ex
 
 *[CR] do we really need | load_datasetS()` and `load_objectS()`?*
 
-*[KDH] - The fact that we keep debating the best way for them to work is a bad sign! We have various options:
+***
+[KDH] - The fact that we keep debating the best way for them to work is a bad sign! We have various options:
 1. The main ONE codebase only contains load_dataset. Instead, we can write a helper function that loads the IBL data people will often want as a single structure.
 `2. We write a simple function `load_object(eID, objectName)` that loads all attributes from an object and puts them in a bunch - but that's it. For this, I don't think we need wildcards. Just spikes = ONE.load_object(eID, 'probe00/spikes'). To access the data use spikes.times`, `spikes.clusters`, etc.
 3. We write a function that loads from wildcards. This will need more thought. I guess the way to do it is to pass a list that can include wildcards. For example `data = ONE.load_multi(eID, ['probe??/spikes.*', 'probe??/clusters.*'])` would return a bunch with contents `data.probe00/spikes.times`, `data.probe01/spikes.times`, `data.probe00/spikes.clusters`, `data.probe00/clusters.amps`, etc. There are all sorts of questions about this - for example can we have the '/' character in a bunch name? Maybe we don't even need this.
-*
+***
 
 *[CR] (what's the status of `loadTS()` below?*
 
