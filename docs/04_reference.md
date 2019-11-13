@@ -25,16 +25,12 @@ Every experiment a data provider releases is identified by an **experiment ID (e
 If a user already knows the eID of an experiment they are interested in, they can load data for the experiment using a command like:
 
 ```python
-st = ONE.load(eID, 'spikes.times')
-sc = ONE.load(eID, 'spikes.clusters')
-cb = ONE.load(eID, 'clusters.brainAcronyms')
+st = ONE.load_dataset(eID, 'spikes.times')
+sc = ONE.load_dataset(eID, 'spikes.clusters')
+cb = ONE.load_dataset(eID, 'clusters.brainAcronyms')
 ```
 
 These commands will download three datasets containing the times and cluster assignments of all spikes recorded in that experiment, together with an estimate of the brain location of each cluster. (In practice, the data will be cached on the user's local machine so it can be loaded repeatedly with only one download.)
-
-The `ONE.load()` function is in fact an alias to `ONE.load_dataset()`. 
-
-*[KDH] - if we are going to change the main function name to load_dataset, then we shouldn't even document the alias load on this page. But I don't really understand what is wrong with calling it load. Is it because if someone does `from ONE import *` it overwrites the existing load function?*
 
 Another loading function is `ONE.load_object(eid, 'spikes.*')` which returns a `Bunch` (a dictionary that accepts an additional `.attr` syntax) with all dataset types that match the "globing" pattern specified as second argument to `load_object()`. The example above can be rewritten as follows:
 
@@ -48,7 +44,7 @@ cb = clusters.brainAcronyms
 ```
 
 #### Listing available data
-The `ONE.contents(eID)` function returns the list of dataset types of a given experiment.
+The `ONE.ls(eID)` function returns the list of dataset types of a given experiment.
 
 *[CR] do we really need | load_datasetS()` and `load_objectS()`?*
 
