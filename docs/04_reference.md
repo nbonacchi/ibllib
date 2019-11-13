@@ -46,8 +46,12 @@ cb = clusters.brainAcronyms
 The `ONE.contents(eID)` function returns the list of dataset types of a given experiment.
 
 *[CR] do we really need | load_datasetS()` and `load_objectS()`?*
+*[KH] - I agree we could keep them out of the main ONE codebase. Instead, we can write a helper function that loads the IBL data people will often want as a single structure*
 
 *[CR] (what's the status of `loadTS()` below?*
+*[KDH] it's on the to-do list, to be implemented as soon as someone wants it...*
+
+*[KDH] - if we are going to change the main function name to load_dataset, then we shouldn't even document the alias load on this page. But I don't really understand what is wrong with calling it load. Is it because if someone does `from ONE import *` it overwrites the existing load function?*
 
 Many neural data signals are time series, and synchronizing these signals is often challenging. ONE will provide a function to interpolate any required timeseries to an evenly or unevenly-sampled timescale of the user's choice. For example the command:
 ```python
