@@ -72,7 +72,7 @@ Not all data can be standardized, since each project will do unique experiments.
 
 ### Revisions and subcollections
 
-Data are often released in multiple revisions. Most users will want always to have the latest revision, but sometimes a user working will want to continue working with a historical revision even after it has been updated, to maintain consistency with previous work. To enable revisions, the ONE functions will have accept an optional argument of the form `date='2019-01-01'`, which will ensure this specific revision is loaded. If the argument is not passed, the latest revision will be loaded.
+Data are often released in multiple revisions. Most users will want always to have the latest revision, but sometimes a user working will want to continue working with a historical revision even after it has been updated, to maintain consistency with previous work. To enable revisions, the ONE functions will have accept an optional argument of the form `revision_date='2019-01-01'`, which will ensure this specific revision is loaded. If the argument is not passed, the latest revision will be loaded.
 
 Sometimes the data will contain multiple measurements of the same type, for example if recordings are made with multiple recording probes simultaneously. In these cases, the dataset types for probe 0 will have names like `probe00/spikes.times`, `probe00/spikes.clusters`, and `probe00/clusters.brainAcronyms`; data for probe 1 will be `probe01/spikes.times`, etc. Encoding of references works within a subcollection: i.e. the entries of `probe00/spikes.clusters` point to the rows of `probe00/clusters.brainAcronyms`, starting from 0, and independently of any datasets starting with `probe01/`.
 
