@@ -47,6 +47,7 @@ sc = spikes.clusters
 cb = clusters.brainAcronyms
 ```
 
+#### Listing available data
 The `ONE.contents(eID)` function returns the list of dataset types of a given experiment.
 
 *[CR] do we really need | load_datasetS()` and `load_objectS()`?*
