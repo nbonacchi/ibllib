@@ -38,7 +38,7 @@ def gen_metrics(alf_dir, ks_dir, ephys_file_path=None):
     the ks2 output directory. Then, generate all metrics that don't require raw ephys data.
         >>> import ibllib.ephys.spikes as e_spks
         >>> from gen_phy_metrics import gen_metrics
-        >>> e_spks.ks2_to_alf(ks_dir_full_path, alf_dir_full_path)
+        >>> e_spks.ks2_to_alf(ks_dir, alf_dir)
         >>> gen_metrics(alf_dir, ks_dir)
 
     2) Generate metrics from an alf directory and metrics that require an ephys_file_path. For phy,

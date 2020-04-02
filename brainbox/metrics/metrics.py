@@ -15,7 +15,7 @@ Run the following to set-up the workspace to run the docstring examples:
 >>> units_b = bb.processing.get_units_bunch(spks_b)  # may take a few mins to compute
 
 TODO add spikemetrics as dependency?
-TODO metrics that could be added: iso_dist, l_ratio, d_prime, nn_hit, nn_miss, sil
+TODO metrics that could be added: cheby, d_prime, nn_hit, nn_miss, sil
 """
 
 import time
