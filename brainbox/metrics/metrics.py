@@ -15,7 +15,7 @@ Run the following to set-up the workspace to run the docstring examples:
 >>> units_b = bb.processing.get_units_bunch(spks_b)  # may take a few mins to compute
 
 TODO add spikemetrics as dependency?
-TODO metrics that could be added: cheby, d_prime, nn_hit, nn_miss, sil
+TODO metrics that could be added: d_prime, nn_hit, nn_miss,
 """
 
 import time
@@ -23,6 +23,7 @@ import time
 import numpy as np
 import scipy.ndimage.filters as filters
 import scipy.stats as stats
+import sklearn.metrics as sm
 
 import brainbox as bb
 from brainbox.core import Bunch
@@ -133,7 +134,6 @@ def unit_stability(units_b, units=None, feat_names=['amps'], dist='norm', test='
             cv_feat[str(unit)] = cv
         p_vals_b[feat] = p_vals_feat
         cv_b[feat] = cv_feat
-
     return p_vals_b, cv_b
 
 
@@ -199,7 +199,6 @@ def missed_spikes_est(feat, spks_per_bin=20, sigma=4, min_num_bins=50):
     # symmetric around peak).
     fraction_missing = np.sum(pdf[cutoff_idx:]) / np.sum(pdf)
     fraction_missing = 0.5 if (fraction_missing > 0.5) else fraction_missing
-
     return fraction_missing, pdf, cutoff_idx
 
 
@@ -335,7 +334,6 @@ def firing_rate_cv(ts, hist_win=0.01, fr_win=0.5, n_bins=10):
     # NaNs from zero spikes are turned into 0's
     # cvs[np.isnan(cvs)] = 0 nan's can happen if neuron doesn't spike in a bin
     cv = np.mean(cvs)
-
     return cv, cvs, fr
 
 
@@ -392,7 +390,6 @@ def firing_rate_fano_factor(ts, hist_win=0.01, fr_win=0.5, n_bins=10):
     ffs = np.var(fr_binned, axis=1) / np.mean(fr_binned, axis=1)
     # ffs[np.isnan(ffs)] = 0 nan's can happen if neuron doesn't spike in a bin
     ff = np.mean(ffs)
-
     return ff, ffs, fr
 
 
@@ -538,8 +535,8 @@ def pres_ratio(ts, hist_win=10):
 def ptp_over_noise(ephys_file, ts, ch, t=2.0, sr=30000, n_ch_probe=385, dtype='int16', offset=0,
                    car=True):
     """
-    For specified channels, for specified timestamps, computes the mean (peak-to-peak amplitudes /
-    the MADs of the background noise).
+    Computes the mean (peak-to-peak amplitudes / the MADs of the background noise) for specified
+    channels and timestamps.
 
     Parameters
     ----------
@@ -626,7 +623,7 @@ def ptp_over_noise(ephys_file, ts, ch, t=2.0, sr=30000, n_ch_probe=385, dtype='i
 
 def contamination_est(ts, rp=0.002):
     """
-    An estimate of the contamination of the unit (i.e. a pseudo false positive measure) based on
+    Estimates the contamination of the unit (i.e. a pseudo false positive measure) based on
     the number of spikes, number of isi violations, and time between the first and last spike.
     (see Hill et al. (2011) J Neurosci 31: 8699-8705).
 
@@ -666,7 +663,7 @@ def contamination_est(ts, rp=0.002):
 
 def contamination_est2(ts, min_time, max_time, rp=0.002, min_isi=0.0001):
     """
-    An estimate of the contamination of the unit (i.e. a pseudo false positive measure) based on
+    Estimates the contamination of the unit (i.e. a pseudo false positive measure) based on
     the number of spikes, number of isi violations, and time between the first and last spike.
     (see Hill et al. (2011) J Neurosci 31: 8699-8705).
 
@@ -718,8 +715,93 @@ def contamination_est2(ts, min_time, max_time, rp=0.002, min_isi=0.0001):
     total_rate = ts.size / (max_time - min_time)
     violation_rate = num_violations / violation_time
     ce = violation_rate / total_rate
-
     return ce, num_violations
+
+
+def cheby(feat, sigma=np.arange(2,6)):
+    """
+    Indicates if a distribution passes Chebyshev's inequality test for a set of sigma values, where
+    sigma is the number of standard deviations away from the mean of the distribution.
+
+    Parameters
+    ----------
+    feat : ndarray
+        The spike feature values distribution.
+    sigma : ndarray_like
+        The sigma values used to test against Chebyshev's inequality.
+
+    Returns
+    -------
+    passed : bool
+        Indicates whether `feat` passed Chebyshev's inequality test for each sigma value
+
+    Examples
+    --------
+    1) Check if unit 1 amplitudes pass Chebyshev's inequality test for sigmas of 2, 3, 4, and 5.
+        >>> amps = units_b['amps']['1']
+        >>> passed = bb.metrics.cheby(amps)
+    """
+
+    feat_std = np.std(feat)
+    feat_mean = np.mean(feat)
+
+    for s in sigma:
+        outliers = np.where(feat > (feat_mean + (2 * feat_std)))[0]
+        if len(outliers) > (1 / np.square(s)) * len(feat):
+            return False
+
+    return True
+
+
+def silhouette(x, ids, metric='mahalanobis', n_samples=20000):
+    """
+    Computes the silhouette values for each spike in a spike feature matrix.
+
+    Parameters
+    ----------
+    x : ndarray
+        The spike feature matrix. Rows correspond to spikes, and columns correspond to features.
+    ids : ndarray
+        The cluster ids for each spike.
+    metric : str
+        The metric used for computing pairwise distance between each spike.
+    n_samples : None or int
+        If not None, the max sample size to use to compute the silhouette values for the first
+        `n_samples` of `x`.
+
+    Returns
+    -------
+    sil : ndarray
+        The silhouette values for each spike, based on their cluster ids.
+
+    See Also
+    --------
+    sm.silhouette_samples
+
+    Examples
+    --------
+    1) Compute the silhouette values for all of unit1's spike amplitudes compared to the
+    amplitudes of the same number of other randomly chosen spikes.
+        >>> x = units_b['amps']['1']
+        >>> ids = np.ones_like(x)
+        >>> noise_idxs = np.random.randint(0, len(spks_b.amps)+1, size=(len(x),))
+        # append `noise_idxs` amps to `x`, and `noise_idxs` clusters to `ids`
+        >>> x = np.concatenate((x, spks_b.amps[noise_idxs]), axis=0)
+        >>> ids = np.concatenate((ids, spks_b.clusters[noise_idxs]), axis=0)
+        >>> sil = bb.metrics.silhouette(x, ids)
+    """
+
+    # If only one feature, reshape `x` and force distance metric to be euclidean, because sklearn
+    # is not smart enough to figure this out.
+    x = x.reshape(-1, 1) if x.ndim == 1 else x
+    metric = 'euclidean' if x.shape[1] < 2 else metric
+
+    # Make sure `n_samples` isn't exceeded for the computation:
+    if n_samples is None or n_samples > len(x):
+        sil = sm.silhouette_samples(x, ids, metric=metric)
+    else:
+        sil = sm.silhouette_samples(x[0:n_samples], ids[0:n_samples], metric=metric)
+    return sil
 
 
 def quick_unit_metrics(spike_clusters, spike_times, spike_amps, spike_depths,
@@ -851,5 +933,4 @@ def quick_unit_metrics(spike_clusters, spike_times, spike_amps, spike_depths,
         r.max_amp_drift[ic] = max_drift(amps)
         r.cum_depth_drift[ic] = cum_drift(depths)
         r.max_depth_drift[ic] = max_drift(depths)
-
     return r
