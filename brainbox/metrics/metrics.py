@@ -747,7 +747,7 @@ def cheby(feat, sigma=np.arange(2,6)):
 
     for s in sigma:
         outliers = np.where(feat > (feat_mean + (2 * feat_std)))[0]
-        if len(outliers) > (1 / np.square(s)) * len(feat):
+        if len(outliers) > (1 / s**2) * len(feat):
             return False
 
     return True

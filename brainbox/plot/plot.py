@@ -71,7 +71,6 @@ def feat_vars(units_b, units=None, feat_name='amps', dist='norm', test='ks', cma
     1) Create a bar plot of the coefficients of variation of the spike amplitudes for all units.
         >>> fig, var_vals, p_vals = bb.plot.feat_vars(units_b)
 
-    @TODO create p value label for each bar?
     '''
 
     # Get units.
