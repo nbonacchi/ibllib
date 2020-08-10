@@ -639,6 +639,23 @@ def load_bpod_fronts(session_path: str, data: dict = False) -> list:
     return [BNC1, BNC2]
 
 
+def load_camera_bin_files(session_path, gpio=False, fcount=False):
+    vidpath = Path(session_path) / 'raw_video_data'
+    files = []
+    out = []
+    if not gpio and not fcount:
+        return
+    elif gpio:
+        files = vidpath.glob('*Camera.GPIO.bin')
+    elif fcount:
+        files = vidpath.glob('*Camera.frame_counter.bin')
+
+    for f in files:
+        out.append(np.fromfile(f, dtype=np.float64))
+
+    return out[0] if len(out) == 1 else out
+
+
 def get_port_events(trial: dict, name: str = '') -> list:
     """get_port_events
     Return all event timestamps from bpod raw data trial that match 'name'
