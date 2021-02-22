@@ -424,7 +424,6 @@ class FlatIronPatcher(Patcher):
         _logger.info(f"Copy {local_path} to {remote_path}")
         if not dry:
             shutil.copy(local_path, remote_path)
-            assert(remote_path.exists())
         return 0, ''
 
     def _rm(self, flatiron_path, dry=True):
