@@ -3,6 +3,7 @@ import ftplib
 from pathlib import Path, PurePosixPath, WindowsPath
 import subprocess
 import logging
+import shutil
 
 import globus_sdk
 
@@ -406,3 +407,29 @@ class FTPPatcher(Patcher):
     def _rm(self, flatiron_path, dry=True):
         raise PermissionError("This Patcher does not have admin permissions to remove data "
                               "from the FlatIron server. ")
+
+
+class FlatIronPatcher(Patcher):
+    def __init__(self, one=None):
+        assert one
+        super().__init__(one=one)
+
+    def patch_datasets(self, file_list, **kwargs):
+        response = super().patch_datasets(file_list, **kwargs)
+
+        return response
+
+    def _scp(self, local_path, remote_path, dry=True):
+
+        remote_path = PurePosixPath('/').joinpath(
+            remote_path.relative_to(PurePosixPath(FLATIRON_MOUNT))
+        )
+        _logger.info(f"Copy {local_path} to {remote_path}")
+        if not dry:
+            shutil.copy(local_path, remote_path)
+            assert(remote_path.exists())
+        return 0, ''
+
+    def _rm(self, flatiron_path, dry=True):
+        raise PermissionError("This Patcher does not have admin permissions to remove data "
+                              "from the FlatIron server")
