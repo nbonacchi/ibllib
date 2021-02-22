@@ -421,9 +421,6 @@ class FlatIronPatcher(Patcher):
 
     def _scp(self, local_path, remote_path, dry=True):
 
-        remote_path = PurePosixPath('/').joinpath(
-            remote_path.relative_to(PurePosixPath(FLATIRON_MOUNT))
-        )
         _logger.info(f"Copy {local_path} to {remote_path}")
         if not dry:
             shutil.copy(local_path, remote_path)
