@@ -66,6 +66,7 @@ class Task(abc.ABC):
         ch.setFormatter(logging.Formatter(str_format))
         _logger.addHandler(ch)
         _logger.info(f"Starting job {self.__class__}")
+        _logger.info(f"running ibllib version {version.ibllib()}")
         # run
         start_time = time.time()
         self.status = 0
